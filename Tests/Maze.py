@@ -1,6 +1,7 @@
-import random
+from collections import defaultdict
 import os
 import string
+from typing import TypedDict, List, Literal
 import time
 import hashlib
 import numpy as np
@@ -9,35 +10,39 @@ from termcolor import colored
 CHEESE, PATH, WALL = 2, 1, 0
 
 
+class CellData(TypedDict):
+    visited_times: int
+    random_code: str
+    letters: List[str]
+
+
 class Cell:
     def __init__(self, rng: np.random.Generator):
         self.type = WALL
-        self.data = {
+        self.data: CellData = {
             "visited_times": 0,
             "random_code": rng.choice(
                 list(string.ascii_uppercase + string.digits + string.ascii_lowercase)
             ),
+            "letters": [],
         }
 
 
 def get_on_color_by_visited_times(visited_times: int):
-    visited_times = visited_times % 6
+    visited_times = visited_times % 5
     if visited_times == 1:
         return "on_green"
     elif visited_times == 2:
-        return "on_yellow"
-    elif visited_times == 3:
         return "on_blue"
-    elif visited_times == 4:
+    elif visited_times == 3:
         return "on_magenta"
-    elif visited_times == 5:
+    elif visited_times == 4:
         return "on_cyan"
+    else:
+        return "on_red"
 
 
-class MazeSolver:
-    x, y = 0, 0
-
-class MazeGenerator:
+class Maze:
     def __init__(self, width: int, height: int, cheese_count: int, key: str):
         self.sha_key = int(hashlib.sha256(key.encode()).digest().hex(), 16)
         self.rng = {
@@ -104,8 +109,7 @@ class MazeGenerator:
             self.maze[(ny + y) // 2][(nx + x) // 2].type = PATH
             stack.append((nx, ny))
 
-            time.sleep(0.01)
-            self.display_maze()
+            # self.display_maze()
 
     def display_maze(self):
         string = ""
@@ -113,52 +117,117 @@ class MazeGenerator:
             for x in range(self.width):
                 back_color = None
                 text = "   "
-                if self.maze[y][x].type == WALL:
-                    back_color = "on_white"
-                    text = "   "
-                elif self.maze[y][x].type == PATH:
+                if self.maze[y][x].type != WALL:
                     back_color = (
                         get_on_color_by_visited_times(self.maze[y][x].data["visited_times"])
                         if self.maze[y][x].data["visited_times"]
                         else "on_black"
                     )
-                    text = " " + (self.maze[y][x].data.get("random_code")) + " "
-
+                if self.maze[y][x].type == WALL:
+                    back_color = "on_white"
+                    text = "   "
+                elif self.maze[y][x].type == PATH:
+                    text = " " + (self.maze[y][x].data["random_code"]) + " "
                 elif self.maze[y][x].type == CHEESE:
-                    text = "🧀 "
-                    back_color = None  # or any default color you want
+                    text = "🧀"
+                    if self.maze[y][x].data["letters"]:
+                        text += self.maze[y][x].data["letters"][-1]
+                        text = "\033[1m" + text + "\033[0m"
+                    else:
+                        text += " "
+
                 string += colored(text, "white", back_color)
             string += "\n"
         print("\033[{0};{1}f{2}".format(0, 0, string))
         print("Start position: ", self.gen_start_x, self.gen_start_y)
         print("Key: ", self.sha_key)
 
-    def put_letter(self, string: str):
+
+class MazeSolver:
+    x, y = 0, 0
+
+    def __init__(self, maze_generator: Maze, string: str, action: Literal["encrypt", "decrypt"]):
+        self.maze_generator = maze_generator
+        self.start_x = maze_generator.start_x
+        self.start_y = maze_generator.start_y
+        self.strings = list(string)
+        #
+        self.temp_count = len(self.strings)
+        self.cheese_points: List[tuple[int, int]] = []
+        self.action = action
+
+    def solve(self):
         UP, RIGHT, DOWN, LEFT = [0, -1], [1, 0], [0, 1], [-1, 0]
         DIRECTIONS = [UP, RIGHT, DOWN, LEFT]
-        x, y = self.start_x, self.start_y
+        self.x, self.y = self.start_x, self.start_y
         current_direction = 0
+        temp_string = self.strings.copy()
         while True:
             right_direction = (current_direction + 1) % 4
             dx, dy = DIRECTIONS[right_direction]
-            right_x, right_y = x + dx, y + dy
-            if self.maze[right_y][right_x].type != WALL:
+            right_x, right_y = self.x + dx, self.y + dy
+            if self.maze_generator.maze[right_y][right_x].type != WALL:
                 # 右邊有路就往右轉
                 current_direction = right_direction
-                x, y = right_x, right_y
-                self.maze[y][x].data["visited_times"] += 1
+                if not self.move(right_x, right_y, temp_string):
+                    break
             else:
                 # 右邊沒路
                 dx, dy = DIRECTIONS[current_direction]
-                next_x, next_y = x + dx, y + dy
-                if self.maze[next_y][next_x].type != WALL:
+                next_x, next_y = self.x + dx, self.y + dy
+                if self.maze_generator.maze[next_y][next_x].type != WALL:
                     # 前面有路前進
-                    x, y = next_x, next_y
-                    self.maze[y][x].data["visited_times"] += 1
+                    if not self.move(next_x, next_y, temp_string):
+                        break
                 else:
                     # 死路鎖往左轉再重新檢測
                     current_direction = (current_direction - 1) % 4
-            self.display_maze()
+            self.maze_generator.display_maze()
+
+    def move(self, x: int, y: int, temp_string: list[str]) -> bool:
+        self.x, self.y = x, y
+        self.maze_generator.maze[y][x].data["visited_times"] += 1
+        if self.maze_generator.maze[y][x].type == CHEESE:
+            if self.temp_count:
+                self.temp_count -= 1
+                self.cheese_points.append((x, y))
+                self.do_cheese(x, y, temp_string, self.action)
+            else:
+                return False  # 沒有字母了
+        return True
+
+    def do_cheese(
+        self, x: int, y: int, temp_string: list[str], action: Literal["encrypt", "decrypt"]
+    ):
+        if action == "encrypt":
+            self.maze_generator.maze[y][x].data["letters"].append(temp_string.pop(0))
+        elif action == "decrypt":
+            pass
+        else:
+            raise ValueError("Invalid action")
+
+    def run(self):
+        self.solve()
+        table_encrypt = []
+        cheese_index_map = defaultdict(lambda: 0)
+        print("對應表:")
+        for i in range(len(self.cheese_points)):
+            cheese_index_map[self.cheese_points[i]] += 1
+            item = (
+                self.cheese_points[i],
+                self.strings[i],
+                self.maze_generator.maze[self.cheese_points[i][1]][self.cheese_points[i][0]].data[
+                    "random_code"
+                ],
+                cheese_index_map[self.cheese_points[i]],
+            )
+            table_encrypt.append(item)
+            print(item)
+
+        print("換位表:")  # 先比 0 再比 1 在比 3
+        sorted_table = sorted(table_encrypt, key=lambda x: (x[0][1], x[0][0], x[3]))
+        for i in range(len(sorted_table)):
+            print(sorted_table[i])
 
 
 if __name__ == "__main__":
@@ -166,8 +235,9 @@ if __name__ == "__main__":
     # height = int(input("Enter maze height : "))
     # cheese_count = int(input("Enter number of cheeses: "))
 
-    maze_generator = MazeGenerator(25, 25, 10, "")
+    maze = Maze(25, 25, 10, "")
     os.system("cls")
-    maze_generator.generate_maze()
-    maze_generator.display_maze()
-    maze_generator.put_letter("Hello World")
+    maze.generate_maze()
+    maze.display_maze()
+    solver = MazeSolver(maze, "HelloWorld", "encrypt")
+    solver.run()
