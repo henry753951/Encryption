@@ -1,127 +1,173 @@
 import random
 import os
+import string
+import time
+import hashlib
+import numpy as np
+from termcolor import colored
 
-LEFT, RIGHT, UP, DOWN = 0, 1, 2, 3
+CHEESE, PATH, WALL = 2, 1, 0
 
 
-class Maze:
-    class Cell:
-        def __init__(self, x: int, y: int):
-            self.x = x
-            self.y = y
-            self.cheese = False
-            self.visited = False
-            self.start = False
-            self.walls = [True, True, True, True]  # Left, Right, Up, Down
-
-        def getChildren(self, grid: list) -> list:
-            directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-            children = [
-                grid[self.y + dy][self.x + dx]
-                for dx, dy in directions
-                if 0 <= self.x + dx < len(grid)
-                and 0 <= self.y + dy < len(grid)
-                and not grid[self.y + dy][self.x + dx].visited
-            ]
-            return children
-
-    def __init__(self, size: int, cheeses: int):
-        self.start_pos = (0, 0)
-        self.size = size
-        self.grid = [[Maze.Cell(x, y) for x in range(size)] for y in range(size)]
-        self.current = self.grid[0][0]
-        self.stack = []
-
-        self.__shuffled_map = (
-            [1 for _ in range(cheeses)] + [0 for _ in range(size * size - cheeses - 1)] + [2]
-        )
-        random.shuffle(self.__shuffled_map)
-
-    def removeWalls(self, current: Cell, choice: Cell):
-        direction_mapping = {
-            (1, 0): (RIGHT, LEFT),
-            (-1, 0): (LEFT, RIGHT),
-            (0, 1): (DOWN, UP),
-            (0, -1): (UP, DOWN),
+class Cell:
+    def __init__(self, rng: np.random.Generator):
+        self.type = WALL
+        self.data = {
+            "visited_times": 0,
+            "random_code": rng.choice(
+                list(string.ascii_uppercase + string.digits + string.ascii_lowercase)
+            ),
         }
 
-        dx = choice.x - current.x
-        dy = choice.y - current.y
-        current_wall, choice_wall = direction_mapping[(dx, dy)]
 
-        current.walls[current_wall] = False
-        choice.walls[choice_wall] = False
+def get_on_color_by_visited_times(visited_times: int):
+    visited_times = visited_times % 6
+    if visited_times == 1:
+        return "on_green"
+    elif visited_times == 2:
+        return "on_yellow"
+    elif visited_times == 3:
+        return "on_blue"
+    elif visited_times == 4:
+        return "on_magenta"
+    elif visited_times == 5:
+        return "on_cyan"
 
-    def displayMaze(self):
-        def drawWalls(binGrid: list) -> list:
-            wall_positions = {LEFT: (1, 0), RIGHT: (1, 2), UP: (0, 1), DOWN: (2, 1)}
-            for yindex, row in enumerate(self.grid):
-                for xindex, cell in enumerate(row):
-                    for wall_index, has_wall in enumerate(cell.walls):
-                        if has_wall:
-                            offset_y, offset_x = wall_positions[wall_index]
-                            binGrid[yindex * 2 + offset_y][xindex * 2 + offset_x] = '⬛'
-                    if cell.cheese:
-                        binGrid[yindex * 2 + 1][xindex * 2 + 1] = '🧀'
-                    elif cell.start:
-                        binGrid[yindex * 2 + 1][xindex * 2 + 1] = '🐭'
-            return binGrid
 
-        def drawBorder(binGrid: list) -> list:
-            length = len(binGrid)
-            binGrid[0] = binGrid[length - 1] = ['⬛'] * length
-            for row in binGrid:
-                row[0] = row[length - 1] = '⬛'
-            return binGrid
+class MazeSolver:
+    x, y = 0, 0
 
-        binGrid = []
-        length = len(self.grid) * 2 + 1
-        for x in range(length):
-            if x % 2 == 0:
-                binGrid.append(['⬜' if x % 2 != 0 else '⬛' for x in range(length)])
-            else:
-                binGrid.append(['⬜'] * length)
-
-        binGrid = drawWalls(binGrid)
-        binGrid = drawBorder(binGrid)
-
-        print('\n'.join([''.join(x) for x in binGrid]))
-
-    def generateMaze(self):
-        while True:
-            self.current.visited = True
-            children = self.current.getChildren(self.grid)
-            if children:
-                choice = random.choice(children)
-                choice.visited = True
-                temp = self.__shuffled_map.pop()
-                if temp == 1:
-                    choice.cheese = True
-                elif temp == 2:
-                    choice.start = True
-                    self.start_pos = (choice.x, choice.y)
-                self.stack.append(self.current)
-                self.removeWalls(self.current, choice)
-                self.current = choice
-            elif self.stack:
-                self.current = self.stack.pop()
-            else:
-                break
-
-            self.displayMaze()
-            os.system('cls')
-        return [[list(map(int, cell.walls)) for cell in row] for row in self.grid], [
-            [int(cell.cheese) for cell in row] for row in self.grid
+class MazeGenerator:
+    def __init__(self, width: int, height: int, cheese_count: int, key: str):
+        self.sha_key = int(hashlib.sha256(key.encode()).digest().hex(), 16)
+        self.rng = {
+            "map": np.random.default_rng(self.sha_key),
+            "position": np.random.default_rng(self.sha_key + 1),
+            "cell": np.random.default_rng(self.sha_key + 2),
+            "direction": np.random.default_rng(self.sha_key + 3),
+        }
+        os.system("pause")
+        self.width = (width if width % 2 != 0 else width + 1) + 2
+        self.height = (height if height % 2 != 0 else height + 1) + 2
+        self.cheese_count = cheese_count
+        self.maze = [
+            [Cell(self.rng.get("cell")) for _ in range(self.width)] for _ in range(self.height)
         ]
+        self.random_marker = [CHEESE for _ in range(cheese_count)] + [
+            PATH for _ in range((self.width // 2) * (self.height // 2) - cheese_count)
+        ]
+        self.rng.get("map").shuffle(self.random_marker)
+
+    def _is_within_bounds(self, x, y) -> bool:
+        return 1 <= x < self.width - 1 and 1 <= y < self.height - 1
+
+    def _get_neighbors(self, x, y, find_path=False) -> list[tuple[int, int]]:
+        neighbors = []
+        if find_path:
+            directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        else:
+            directions = [(-2, 0), (2, 0), (0, -2), (0, 2)]
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if find_path:
+                if self._is_within_bounds(nx, ny) and self.maze[ny][nx].type > WALL:
+                    neighbors.append((nx, ny))
+            else:
+                if self._is_within_bounds(nx, ny) and self.maze[ny][nx].type == WALL:
+                    neighbors.append((nx, ny))
+        return neighbors
+
+    def generate_maze(self):
+        self.gen_start_x, self.gen_start_y = (
+            self.rng.get("map").integers(1, (self.width - 2) // 2) * 2 - 1,
+            self.rng.get("map").integers(1, (self.height - 2) // 2) * 2 - 1,
+        )
+        self.start_x, self.start_y = (
+            self.rng.get("position").integers(1, (self.width - 2) // 2) * 2 - 1,
+            self.rng.get("position").integers(1, (self.height - 2) // 2) * 2 - 1,
+        )
+        self.maze[self.gen_start_y][self.gen_start_x].type = PATH
+        stack = [(self.gen_start_x, self.gen_start_y)]
+
+        while stack:
+            x, y = stack[-1]
+            neighbors = self._get_neighbors(x, y)
+            if not neighbors:
+                stack.pop()
+                continue
+            # next step
+            nx: int
+            ny: int
+            nx, ny = self.rng.get("map").choice(neighbors)
+            self.maze[ny][nx].type = self.random_marker.pop()
+
+            self.maze[(ny + y) // 2][(nx + x) // 2].type = PATH
+            stack.append((nx, ny))
+
+            time.sleep(0.01)
+            self.display_maze()
+
+    def display_maze(self):
+        string = ""
+        for y in range(self.height):
+            for x in range(self.width):
+                back_color = None
+                text = "   "
+                if self.maze[y][x].type == WALL:
+                    back_color = "on_white"
+                    text = "   "
+                elif self.maze[y][x].type == PATH:
+                    back_color = (
+                        get_on_color_by_visited_times(self.maze[y][x].data["visited_times"])
+                        if self.maze[y][x].data["visited_times"]
+                        else "on_black"
+                    )
+                    text = " " + (self.maze[y][x].data.get("random_code")) + " "
+
+                elif self.maze[y][x].type == CHEESE:
+                    text = "🧀 "
+                    back_color = None  # or any default color you want
+                string += colored(text, "white", back_color)
+            string += "\n"
+        print("\033[{0};{1}f{2}".format(0, 0, string))
+        print("Start position: ", self.gen_start_x, self.gen_start_y)
+        print("Key: ", self.sha_key)
+
+    def put_letter(self, string: str):
+        UP, RIGHT, DOWN, LEFT = [0, -1], [1, 0], [0, 1], [-1, 0]
+        DIRECTIONS = [UP, RIGHT, DOWN, LEFT]
+        x, y = self.start_x, self.start_y
+        current_direction = 0
+        while True:
+            right_direction = (current_direction + 1) % 4
+            dx, dy = DIRECTIONS[right_direction]
+            right_x, right_y = x + dx, y + dy
+            if self.maze[right_y][right_x].type != WALL:
+                # 右邊有路就往右轉
+                current_direction = right_direction
+                x, y = right_x, right_y
+                self.maze[y][x].data["visited_times"] += 1
+            else:
+                # 右邊沒路
+                dx, dy = DIRECTIONS[current_direction]
+                next_x, next_y = x + dx, y + dy
+                if self.maze[next_y][next_x].type != WALL:
+                    # 前面有路前進
+                    x, y = next_x, next_y
+                    self.maze[y][x].data["visited_times"] += 1
+                else:
+                    # 死路鎖往左轉再重新檢測
+                    current_direction = (current_direction - 1) % 4
+            self.display_maze()
 
 
-size = int(input('Enter a maze size: '))
-maze = Maze(size, cheeses=10)
-maze_map, cheese_map = maze.generateMaze()
-maze.displayMaze()
-key = ''.join(''.join(''.join(str(x) for x in cell) for cell in row) for row in maze_map)
-cheese_key = ''.join(''.join(str(x) for x in cell) for cell in cheese_map)
-key_len = len(key)
-print(f"Key-pairs: {key_len}")
-print(f"Key: {int(key, 2)} - {key_len} - {int(cheese_key, 2)}")
-print(f"Key: {hex(int(key, 2))}-{hex(key_len)}-{hex(int(cheese_key, 2))}")
+if __name__ == "__main__":
+    # width = int(input("Enter maze width: "))
+    # height = int(input("Enter maze height : "))
+    # cheese_count = int(input("Enter number of cheeses: "))
+
+    maze_generator = MazeGenerator(25, 25, 10, "")
+    os.system("cls")
+    maze_generator.generate_maze()
+    maze_generator.display_maze()
+    maze_generator.put_letter("Hello World")
