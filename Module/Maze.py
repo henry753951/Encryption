@@ -8,6 +8,17 @@ import numpy as np
 from termcolor import colored
 
 CHEESE, PATH, WALL = 2, 1, 0
+codes = list(string.ascii_uppercase + string.digits + string.ascii_lowercase)
+
+DEBUG = False
+
+def _print(*args, **kwargs):
+    global DEBUG
+    if DEBUG:
+        print(*args, **kwargs)
+
+def ord_(char: str) -> int:
+    return codes.index(char)
 
 
 class CellData(TypedDict):
@@ -21,9 +32,7 @@ class Cell:
         self.type = WALL
         self.data: CellData = {
             "visited_times": 0,
-            "random_code": rng.choice(
-                list(string.ascii_uppercase + string.digits + string.ascii_lowercase)
-            ),
+            "random_code": rng.choice(codes),
             "letters": [],
         }
 
@@ -43,7 +52,7 @@ def get_on_color_by_visited_times(visited_times: int):
 
 
 class Maze:
-    def __init__(self, width: int, height: int, cheese_count: int, key: str):
+    def __init__(self, width: int, height: int, cheese_count: int, key: str,debug=False):
         self.sha_key = int(hashlib.sha256(key.encode()).digest().hex(), 16)
         self.rng = {
             "map": np.random.default_rng(self.sha_key),
@@ -51,7 +60,10 @@ class Maze:
             "cell": np.random.default_rng(self.sha_key + 2),
             "direction": np.random.default_rng(self.sha_key + 3),
         }
-        os.system("pause")
+        global DEBUG
+        DEBUG = debug
+        if DEBUG:
+            os.system("cls")
         self.width = (width if width % 2 != 0 else width + 1) + 2
         self.height = (height if height % 2 != 0 else height + 1) + 2
         self.cheese_count = cheese_count
@@ -138,13 +150,14 @@ class Maze:
 
                 string += colored(text, "white", back_color)
             string += "\n"
-        print("\033[{0};{1}f{2}".format(0, 0, string))
-        print("Start position: ", self.gen_start_x, self.gen_start_y)
-        print("Key: ", self.sha_key)
+        _print("\033[{0};{1}f{2}".format(0, 0, string))
+        _print("Start position: ", self.gen_start_x, self.gen_start_y)
+        _print("Key: ", self.sha_key)
 
 
 class MazeSolver:
     x, y = 0, 0
+    poops: list[str] = []
 
     def __init__(self, maze_generator: Maze, string: str, action: Literal["encrypt", "decrypt"]):
         self.maze_generator = maze_generator
@@ -186,6 +199,7 @@ class MazeSolver:
 
     def move(self, x: int, y: int, temp_string: list[str]) -> bool:
         self.x, self.y = x, y
+        self.poops.append(self.maze_generator.maze[y][x].data["random_code"])
         self.maze_generator.maze[y][x].data["visited_times"] += 1
         if self.maze_generator.maze[y][x].type == CHEESE:
             if self.temp_count:
@@ -206,38 +220,118 @@ class MazeSolver:
         else:
             raise ValueError("Invalid action")
 
-    def run(self):
+    def run(self) -> str:
         self.solve()
-        table_encrypt = []
-        cheese_index_map = defaultdict(lambda: 0)
-        print("對應表:")
-        for i in range(len(self.cheese_points)):
-            cheese_index_map[self.cheese_points[i]] += 1
-            item = (
-                self.cheese_points[i],
-                self.strings[i],
-                self.maze_generator.maze[self.cheese_points[i][1]][self.cheese_points[i][0]].data[
-                    "random_code"
-                ],
-                cheese_index_map[self.cheese_points[i]],
-            )
-            table_encrypt.append(item)
-            print(item)
+        if self.action == "encrypt":
+            _print("Poops:", self.poops)
+            table_encrypt = []
+            cheese_index_map = defaultdict(lambda: 0)
+            _print("對應表:")
+            for i in range(len(self.cheese_points)):
+                cheese_index_map[self.cheese_points[i]] += 1
+                item = [
+                    self.cheese_points[i],
+                    self.strings[i],
+                    self.maze_generator.maze[self.cheese_points[i][1]][
+                        self.cheese_points[i][0]
+                    ].data["random_code"],
+                    cheese_index_map[self.cheese_points[i]],  # 每個Cheese的Letters排序用
+                ]
+                table_encrypt.append(item)
+                _print(item)
 
-        print("換位表:")  # 先比 0 再比 1 在比 3
-        sorted_table = sorted(table_encrypt, key=lambda x: (x[0][1], x[0][0], x[3]))
-        for i in range(len(sorted_table)):
-            print(sorted_table[i])
+            _print("換位表:")  # 先比 0 再比 1 在比 3
+            sorted_table = sorted(table_encrypt, key=lambda x: (x[0][1], x[0][0], x[3]))
+            for i in range(len(sorted_table)):
+                _print(sorted_table[i])
+
+            _print("和poop code相加:")
+            for i in range(len(sorted_table)):
+                sorted_table[i][1] = codes[
+                    (ord_(sorted_table[i][1]) + (ord_(sorted_table[i][2]) * i)) % len(codes)
+                ]
+                _print(sorted_table[i])
+
+            _print("和路上的大便攪和:")
+            poopAverage = np.average(list(map(lambda x: ord_(x), self.poops)))
+            poopStd = np.std(list(map(lambda x: ord_(x), self.poops)))
+            for i in range(len(sorted_table)):
+                after_pooped = (ord_(sorted_table[i][1]) + int(poopAverage)) % len(codes)
+                after_pooped = (after_pooped + int(poopStd)) % len(codes)
+                sorted_table[i][1] = codes[after_pooped]
+                _print(sorted_table[i])
+            _print("加密後的字串:", "".join(list(map(lambda x: x[1], sorted_table))))
+            return "".join(list(map(lambda x: x[1], sorted_table)))
+        elif self.action == "decrypt":
+            table_decrypt = []
+            cheese_index_map = defaultdict(lambda: 0)
+            _print("對應表:")
+            for i in range(len(self.cheese_points)):
+                cheese_index_map[self.cheese_points[i]] += 1
+                item = [
+                    self.cheese_points[i],
+                    self.strings[i],
+                    self.maze_generator.maze[self.cheese_points[i][1]][
+                        self.cheese_points[i][0]
+                    ].data["random_code"],
+                    cheese_index_map[self.cheese_points[i]],  # 每個Cheese的Letters排序用
+                    i,  # 等等排回去用
+                ]
+                table_decrypt.append(item)
+                _print(item)
+            sorted_table = sorted(table_decrypt, key=lambda x: (x[0][1], x[0][0], x[3]))
+
+            _print("放入加密字串:")
+            for i in range(len(sorted_table)):
+                sorted_table[i][1] = self.strings[i]
+                _print(sorted_table[i])
+            _print("和路上的大便攪和反向:")
+            poopAverage = np.average(list(map(lambda x: ord_(x), self.poops)))
+            poopStd = np.std(list(map(lambda x: ord_(x), self.poops)))
+            for i in range(len(sorted_table)):
+                before_pooped = (ord_(sorted_table[i][1]) - int(poopStd)) % len(codes)
+                before_pooped = (before_pooped - int(poopAverage)) % len(codes)
+                sorted_table[i][1] = codes[before_pooped]
+                _print(sorted_table[i])
+
+            _print("和poop code相加反向:")
+            for i in range(len(sorted_table)):
+                sorted_table[i][1] = codes[
+                    (ord_(sorted_table[i][1]) - (ord_(sorted_table[i][2])) * i) % len(codes)
+                ]
+                _print(sorted_table[i])
+
+            _print("排序回去:")
+            sorted_table = sorted(sorted_table, key=lambda x: x[4])
+            for i in range(len(sorted_table)):
+                _print(sorted_table[i])
+
+            _print("解密後的字串:", "".join(list(map(lambda x: x[1], sorted_table))))
+            return "".join(list(map(lambda x: x[1], sorted_table)))
+
+        else:
+            raise ValueError("Invalid action")
 
 
 if __name__ == "__main__":
     # width = int(input("Enter maze width: "))
     # height = int(input("Enter maze height : "))
     # cheese_count = int(input("Enter number of cheeses: "))
-
-    maze = Maze(25, 25, 10, "")
+    key = input("Enter key: ")
+    input_msg = input("Enter message: ")
+    maze = Maze(25, 25, 10, key)
+    _print("Key: ", key)
+    os.system("pause")
     os.system("cls")
     maze.generate_maze()
     maze.display_maze()
-    solver = MazeSolver(maze, "HelloWorld", "encrypt")
-    solver.run()
+    solver = MazeSolver(maze, input_msg, "encrypt")
+    encrypted_string = solver.run()
+    _print("\n\n三秒後開始解密")
+    time.sleep(3)
+    os.system("cls")
+    solver = MazeSolver(maze, encrypted_string, "decrypt")
+    decrypted_string = solver.run()
+    
+    _print("Encrypted string:", encrypted_string)
+    _print("Decrypted string:", decrypted_string)
