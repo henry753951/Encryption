@@ -8,12 +8,16 @@ Algorithms: list[EncryptAlgorithm] = [
 ]
 action = input("Action (encrypt/decrypt): ")
 if action == "decrypt":
+    secret = input("Secret: ")
     for algorithm in Algorithms:
-        secret = input("Secret: ")
         decrypted = algorithm.decrypt(secret)
         print(f"Secret: {secret}\nDecrypted: {decrypted}\n")
+        secret = decrypted
+    print(f"Final Decrypted: {decrypted}")
 else:
+    message = input("Message: ")
     for algorithm in Algorithms:
-        message = input("Message: ")
         encrypted = algorithm.encrypt(message)
         print(f"Message: {message}\nEncrypted: {encrypted}")
+        message = encrypted
+    print(f"Final Encrypted: {encrypted}")
