@@ -165,15 +165,14 @@ class CenterOfGravityAlgorithm(EncryptAlgorithm):
         for char in range(0, len(encrypted_text), 2):
             x = self.encrypt_char_x_map[encrypted_text[char]]
             y = self.encrypt_char_y_map[encrypted_text[char + 1]]
-            if x * 3 - x1 - x2 < 0:
-                x = x + 26
+            while x * 3 - x1 - x2 < 0:
+                x += 26
             new_x = x * 3 - x1 - x2
-            if y * 3 - y1 - y2 < 0:
-                y = y + 7
+            while y * 3 - y1 - y2 < 0:
+                y += 7
             new_y = y * 3 - y1 - y2
             for c in self.char_map:
                 if self.char_map[c] == (new_x, new_y):
                     decrypted_text += c
                     break
         return decrypted_text
-
