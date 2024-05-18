@@ -3,13 +3,14 @@ from Algorithms.SubstitutionCipher import SubstitutionCipher
 from BaseEncryptAlgorithm import EncryptAlgorithm
 from Algorithms.CenterOfGravityAlgorithm import CenterOfGravityAlgorithm
 from Algorithms.MazeAlgorithm import MazeEncryption
-
+from Algorithms.StrangeShapeAlgorithm import StrangeShapeAlgorithm
 
 key = "PIYAN"
 Algorithms: list[EncryptAlgorithm] = [
     MazeEncryption(key, {"width": 10, "height": 10, "cheese": 5, "debug": False}),
     CenterOfGravityAlgorithm(key),
     SubstitutionCipher(key, {"debug": False}),
+    StrangeShapeAlgorithm(key),
 ]
 
 
