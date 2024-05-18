@@ -1,1 +1,46 @@
-[{"message": "fBXiJ", "decrypted": "sWMU"}]
+[
+  {
+    "message": "9",
+    "each_inputs": [
+      { "message": "9", "encrypted": "Y", "algorithm": "MazeEncryption" },
+      {
+        "message": "Y",
+        "encrypted": "E2",
+        "algorithm": "CenterOfGravityAlgorithm"
+      }
+    ]
+  },
+  {
+    "message": "Yk",
+    "each_inputs": [
+      { "message": "Yk", "encrypted": "Nu", "algorithm": "MazeEncryption" },
+      {
+        "message": "Nu",
+        "encrypted": "T2A3",
+        "algorithm": "CenterOfGravityAlgorithm"
+      }
+    ]
+  },
+  {
+    "message": "Hg",
+    "each_inputs": [
+      { "message": "Hg", "encrypted": "wq", "algorithm": "MazeEncryption" },
+      {
+        "message": "wq",
+        "encrypted": "C3W3",
+        "algorithm": "CenterOfGravityAlgorithm"
+      }
+    ]
+  },
+  {
+    "message": "WM",
+    "each_inputs": [
+      { "message": "WM", "encrypted": "LW", "algorithm": "MazeEncryption" },
+      {
+        "message": "LW",
+        "encrypted": "R2C2",
+        "algorithm": "CenterOfGravityAlgorithm"
+      }
+    ]
+  }
+]
