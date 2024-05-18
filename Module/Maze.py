@@ -205,7 +205,7 @@ class MazeSolver:
         self.x, self.y = x, y
         self.poops.append(self.maze_generator.maze[y][x].data["random_code"])
         self.maze_generator.maze[y][x].data["visited_times"] += 1
-        time.sleep(0.05)
+        # time.sleep(0.05)
         if self.maze_generator.maze[y][x].type == CHEESE:
             if self.temp_count:
                 self.temp_count -= 1

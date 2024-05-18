@@ -3,6 +3,10 @@ from Algorithms.SubstitutionCipher import SubstitutionCipher
 from BaseEncryptAlgorithm import EncryptAlgorithm
 from Algorithms.CenterOfGravityAlgorithm import CenterOfGravityAlgorithm
 from Algorithms.MazeAlgorithm import MazeEncryption
+from Algorithms.StrangeShapeAlgorithm import StrangeShapeAlgorithm
+from Algorithms.EZIC_Algorithm import EZICEncryptAlgorithm
+
+key = "PIYAN"
 from Algorithms.standard_deviationAlgorithm import standard_deviationAlgorithm
 from Algorithms.Six_directionAlgorithm import Six_directionAlgorithm
 key = "PIYAN"
@@ -14,6 +18,8 @@ Algorithms: list[EncryptAlgorithm] = [
     CenterOfGravityAlgorithm(key),
     
     SubstitutionCipher(key, {"debug": False}),
+    StrangeShapeAlgorithm(key),
+    EZICEncryptAlgorithm(key)
 ]
 
 
