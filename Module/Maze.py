@@ -175,6 +175,7 @@ class MazeSolver:
     def solve(self):
         UP, RIGHT, DOWN, LEFT = [0, -1], [1, 0], [0, 1], [-1, 0]
         DIRECTIONS = [UP, RIGHT, DOWN, LEFT]
+        self.poops = []
         self.x, self.y = self.start_x, self.start_y
         current_direction = 0
         temp_string = self.strings.copy()

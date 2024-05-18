@@ -1,4 +1,5 @@
 import json
+from Algorithms.SubstitutionCipher import SubstitutionCipher
 from BaseEncryptAlgorithm import EncryptAlgorithm
 from Algorithms.CenterOfGravityAlgorithm import CenterOfGravityAlgorithm
 from Algorithms.MazeAlgorithm import MazeEncryption
@@ -6,8 +7,9 @@ from Algorithms.MazeAlgorithm import MazeEncryption
 
 key = "key"
 Algorithms: list[EncryptAlgorithm] = [
-    MazeEncryption(key, {"width": 25, "height": 25, "cheese": 10, "debug": False}),
+    MazeEncryption(key, {"width": 10, "height": 10, "cheese": 5, "debug": False}),
     CenterOfGravityAlgorithm(key),
+    SubstitutionCipher(key, {"debug": False}),
 ]
 
 
@@ -51,19 +53,23 @@ def test_errors():
             return
     print("########## Error Test ############")
     print(f"🍈 Errors: {len(errors)}")
-    for algorithm in list(Algorithms):
-        print(f"🔒 Algorithm: {algorithm.__class__.__name__}")
-        for error in errors:
-            for index, each_input in enumerate(error["each_inputs"]):
+    for error in errors:
+        for index, each_input in enumerate(error["each_inputs"]):
+            for algorithm in Algorithms:
                 if each_input["algorithm"] == algorithm.__class__.__name__:
+                    print(f"🔒 Algorithm: {algorithm.__class__.__name__}")
                     print(f"\tMessage: {each_input['message']}")
-                    print(f"\tEncrypted: {each_input['encrypted']}")
+                    print(f"\tLogEncrypted: {each_input['encrypted']}")
+                    print(f"\tLogDecrypted: {algorithm.decrypt(each_input['encrypted'])}")
+                    encrypted = Algorithms[index].encrypt(each_input["message"])
                     decrypted = Algorithms[index].decrypt(each_input["encrypted"])
+                    print(f"\tEncrypted: {encrypted}")
                     print(f"\tDecrypted: {decrypted}")
                     if each_input["message"] != decrypted:
                         print(f"\t❌ Error: {each_input['message']} != {decrypted}")
                     elif each_input["message"] == decrypted:
                         print("\t✅ Success")
+                    break
         print("\n")
 
 

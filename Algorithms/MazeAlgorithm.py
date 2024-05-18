@@ -14,8 +14,6 @@ class MazeEncryption(EncryptAlgorithm):
         self.maze = Maze(width, height, cheese, secret_key, debug)
         self.maze.generate_maze()
 
-
-
     def decrypt(self, secret: str) -> str:
         solver = MazeSolver(self.maze, secret, "decrypt")
         solver.solve()
