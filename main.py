@@ -59,6 +59,7 @@ def test_errors():
                     print(f"\tMessage: {each_input['message']}")
                     print(f"\tEncrypted: {each_input['encrypted']}")
                     decrypted = Algorithms[index].decrypt(each_input["encrypted"])
+                    print(f"\tDecrypted: {decrypted}")
                     if each_input["message"] != decrypted:
                         print(f"\t❌ Error: {each_input['message']} != {decrypted}")
                     elif each_input["message"] == decrypted:
@@ -103,6 +104,8 @@ if __name__ == "__main__":
             done += 1
         else:
             print("\n\n❤️ All dataset tested")
-        print(f"\tSuccess: {success}\n\tFailed: {len(dataset) - success}\n\t Unfinished: {len(dataset) - done}")
+        print(
+            f"\tSuccess: {success}\n\tFailed: {done-success}\n\tUnfinished: {len(dataset) - done}"
+        )
 
         test_errors()

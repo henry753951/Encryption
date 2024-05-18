@@ -12,10 +12,12 @@ codes = list(string.ascii_uppercase + string.digits + string.ascii_lowercase)
 
 DEBUG = False
 
+
 def _print(*args, **kwargs):
     global DEBUG
     if DEBUG:
         print(*args, **kwargs)
+
 
 def ord_(char: str) -> int:
     return codes.index(char)
@@ -52,7 +54,7 @@ def get_on_color_by_visited_times(visited_times: int):
 
 
 class Maze:
-    def __init__(self, width: int, height: int, cheese_count: int, key: str,debug=False):
+    def __init__(self, width: int, height: int, cheese_count: int, key: str, debug=False):
         self.sha_key = int(hashlib.sha256(key.encode()).digest().hex(), 16)
         self.rng = {
             "map": np.random.default_rng(self.sha_key),
@@ -124,6 +126,7 @@ class Maze:
             # self.display_maze()
 
     def display_maze(self):
+        # return
         string = ""
         for y in range(self.height):
             for x in range(self.width):
@@ -221,7 +224,6 @@ class MazeSolver:
             raise ValueError("Invalid action")
 
     def run(self) -> str:
-        self.solve()
         if self.action == "encrypt":
             _print("Poops:", self.poops)
             table_encrypt = []
@@ -314,24 +316,23 @@ class MazeSolver:
 
 
 if __name__ == "__main__":
-    # width = int(input("Enter maze width: "))
-    # height = int(input("Enter maze height : "))
-    # cheese_count = int(input("Enter number of cheeses: "))
     key = input("Enter key: ")
     input_msg = input("Enter message: ")
-    maze = Maze(25, 25, 10, key)
+    maze = Maze(25, 25, 10, key, debug=False)
     _print("Key: ", key)
     os.system("pause")
-    os.system("cls")
+    # os.system("cls")
     maze.generate_maze()
     maze.display_maze()
     solver = MazeSolver(maze, input_msg, "encrypt")
+    solver.solve()
     encrypted_string = solver.run()
-    _print("\n\n三秒後開始解密")
+    print("\n\n三秒後開始解密")
     time.sleep(3)
-    os.system("cls")
+    # os.system("cls")
     solver = MazeSolver(maze, encrypted_string, "decrypt")
+    solver.solve()
     decrypted_string = solver.run()
-    
-    _print("Encrypted string:", encrypted_string)
-    _print("Decrypted string:", decrypted_string)
+
+    print("Encrypted string:", encrypted_string)
+    print("Decrypted string:", decrypted_string)
