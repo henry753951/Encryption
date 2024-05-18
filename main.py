@@ -82,6 +82,7 @@ if __name__ == "__main__":
         with open("error.json", "w") as f:
             json.dump([], f)
         success = 0
+        done = 0
         for message in dataset:
             try:
                 print(f"🐳 Message: {message}")
@@ -94,10 +95,14 @@ if __name__ == "__main__":
                     print(f"✅ Success: {message} == {decrypted}\n")
                     success += 1
             except KeyboardInterrupt:
+                print("\n\n🚨🚨🚨 Keyboard Interrupted, jumping to testing")
                 break
             except Exception as e:
                 print(f"❌❌❌ Error: {e}")
                 error_handler(message, each_inputs)
-        print(f"\n\n🍈 Success: {success}/{len(dataset)}")
+            done += 1
+        else:
+            print("\n\n❤️ All dataset tested")
+        print(f"\tSuccess: {success}\n\tFailed: {len(dataset) - success}\n\t Unfinished: {len(dataset) - done}")
 
         test_errors()
