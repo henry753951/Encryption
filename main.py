@@ -9,12 +9,12 @@ from Algorithms.EZIC_Algorithm import EZICEncryptAlgorithm
 key = "PIYAN"
 from Algorithms.standard_deviationAlgorithm import standard_deviationAlgorithm
 from Algorithms.Six_directionAlgorithm import Six_directionAlgorithm
-key = "PIYAN"
+key = "Kpoor"
 Algorithms: list[EncryptAlgorithm] = [
     standard_deviationAlgorithm(key),
     Six_directionAlgorithm(key),
-    MazeEncryption(key, {"width": 25, "height": 25, "cheese": 10, "debug": False}),
-    MazeEncryption(key, {"width": 10, "height": 10, "cheese": 5, "debug": False}),
+
+    MazeEncryption(key, {"width": 30, "height": 30, "cheese": 15, "debug": False}),
     CenterOfGravityAlgorithm(key),
     
     SubstitutionCipher(key, {"debug": False}),
@@ -100,6 +100,7 @@ if __name__ == "__main__":
             json.dump([], f)
         success = 0
         done = 0
+        
         for message in dataset:
             try:
                 print(f"🐳 Message: {message}")
