@@ -5,7 +5,7 @@ from Algorithms.CenterOfGravityAlgorithm import CenterOfGravityAlgorithm
 from Algorithms.MazeAlgorithm import MazeEncryption
 
 
-key = "key"
+key = "PIYAN"
 Algorithms: list[EncryptAlgorithm] = [
     MazeEncryption(key, {"width": 10, "height": 10, "cheese": 5, "debug": False}),
     CenterOfGravityAlgorithm(key),
