@@ -1,7 +1,5 @@
 from BaseEncryptAlgorithm import EncryptAlgorithm
 from Module.Maze import Maze, MazeSolver
-import random
-
 
 class MazeEncryption(EncryptAlgorithm):
     def __init__(self, secret_key: str, options: dict = {}) -> None:

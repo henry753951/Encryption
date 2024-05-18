@@ -7,7 +7,7 @@ def generate_dataset():
     characters = string.ascii_letters + string.digits
     dataset = []
 
-    for length in range(1, 15):  # Adjust the range to generate more strings if needed
+    for length in range(1, 10):  # Adjust the range to generate more strings if needed
         for _ in range(50):  # Number of samples per length
             sample = ''.join(random.choices(characters, k=length))
             dataset.append(sample)

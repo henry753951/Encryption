@@ -123,7 +123,7 @@ class Maze:
             self.maze[(ny + y) // 2][(nx + x) // 2].type = PATH
             stack.append((nx, ny))
 
-            # self.display_maze()
+            self.display_maze()
 
     def display_maze(self):
         # return
@@ -205,6 +205,7 @@ class MazeSolver:
         self.x, self.y = x, y
         self.poops.append(self.maze_generator.maze[y][x].data["random_code"])
         self.maze_generator.maze[y][x].data["visited_times"] += 1
+        time.sleep(0.05)
         if self.maze_generator.maze[y][x].type == CHEESE:
             if self.temp_count:
                 self.temp_count -= 1
@@ -317,23 +318,21 @@ class MazeSolver:
 
 
 if __name__ == "__main__":
-    key = input("Enter key: ")
-    input_msg = input("Enter message: ")
-    maze = Maze(25, 25, 10, key, debug=False)
-    _print("Key: ", key)
-    os.system("pause")
-    # os.system("cls")
+    key = "I am key"
+    maze = Maze(25, 25, 20, key, debug=True)
     maze.generate_maze()
-    maze.display_maze()
-    solver = MazeSolver(maze, input_msg, "encrypt")
-    solver.solve()
-    encrypted_string = solver.run()
-    print("\n\n三秒後開始解密")
-    time.sleep(3)
-    # os.system("cls")
-    solver = MazeSolver(maze, encrypted_string, "decrypt")
-    solver.solve()
-    decrypted_string = solver.run()
-
-    print("Encrypted string:", encrypted_string)
-    print("Decrypted string:", decrypted_string)
+    _print("Key: ", key)
+    is_encrypt = input("1. Encrypt\n2. Decrypt\n")
+    if is_encrypt == "1":
+        input_msg = input("Enter message: ")
+        maze.display_maze()
+        solver = MazeSolver(maze, input_msg, "encrypt")
+        solver.solve()
+        encrypted_string = solver.run()
+        print("Encrypted string:", encrypted_string)
+    elif is_encrypt == "2":
+        encrypted_string = input("Enter message: ")
+        solver = MazeSolver(maze, encrypted_string, "decrypt")
+        solver.solve()
+        decrypted_string = solver.run()
+        print("Decrypted string:", decrypted_string)
