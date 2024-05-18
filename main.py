@@ -2,12 +2,15 @@ import json
 from BaseEncryptAlgorithm import EncryptAlgorithm
 from Algorithms.CenterOfGravityAlgorithm import CenterOfGravityAlgorithm
 from Algorithms.MazeAlgorithm import MazeEncryption
-
-
-key = "key"
+from Algorithms.standard_deviationAlgorithm import standard_deviationAlgorithm
+from Algorithms.Six_directionAlgorithm import Six_directionAlgorithm
+key = "PIYAN"
 Algorithms: list[EncryptAlgorithm] = [
+    standard_deviationAlgorithm(key),
+    Six_directionAlgorithm(key),
     MazeEncryption(key, {"width": 25, "height": 25, "cheese": 10, "debug": False}),
     CenterOfGravityAlgorithm(key),
+    
 ]
 
 
