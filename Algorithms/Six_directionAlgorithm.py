@@ -5,9 +5,9 @@ import random
 class Six_directionAlgorithm(EncryptAlgorithm):
     def __init__(self, secret_key: str ) -> None:
         super().__init__(secret_key)
-        self.seed = "1" + secret_key
+        self.seed = "2" + secret_key
         self.length = 5
-        self.SECRET = secret_key
+        self.SECRET = secret_key[0:5]
 
     def decrypt(self, secret: str) -> str:
         secret = list(secret)
@@ -41,8 +41,12 @@ class Six_directionAlgorithm(EncryptAlgorithm):
             # for j in range(len(first_key)):
                 # print("sscc",first_key[j])
             de_substitute.append(Six_directionAlgorithm.de_how_to_go([secret[i]],de_first_key[0],de_second_key[i]))
-        print("解密回來後 : ",de_substitute)
-        return de_substitute
+        # print("解密回來後 : ",de_substitute)
+        
+        cout = ""
+        for i in range(len(de_substitute)):
+            cout += de_substitute[i]
+        return cout
 
     def encrypt(self, message: str) -> str:
         message = list(message)
@@ -74,7 +78,50 @@ class Six_directionAlgorithm(EncryptAlgorithm):
             # for j in range(len(first_key)):
                 # print("sscc",first_key[j])
             substitute.append(Six_directionAlgorithm.how_to_go([message[i]],first_key[0],second_key[i]))
-        return substitute
+        cout = ""
+        for i in range(len(substitute)):
+            cout += substitute[i]
+        return cout
+    
+    @staticmethod
+    def de_how_to_go(Plaintext,first_key,second_key ) -> int:
+        # print("first_key: ", first_key)
+        # print("second_key: ", second_key)
+        first = Six_directionAlgorithm.calculate_three(first_key)
+        second = Six_directionAlgorithm.calculate_three(second_key)
+        check = 0
+        for i in range(len(second_key)):
+            if i % 2 == 0:
+                check += int(first_key[i]) * int(second_key[i])
+            else:
+                check -= int(second_key[i]) * int(first_key[i])
+
+        # print("check: ", check,"first: ", first, "second: ", second)
+
+        if first >= second:
+            if check > 0:
+                OPTION = 0
+            elif check < 0:
+                OPTION = 1
+            else:
+                OPTION = 2
+        elif first < second:
+            if check > 0:
+                OPTION = 3
+            elif check < 0:
+                OPTION = 4
+            else:
+                OPTION = 5
+
+        # return main(OPTION,Plaintext,abs(check))
+        QQ = 0
+        for i in range(len(first_key)):
+            QQ += first_key[i]
+        if QQ % 2 == 0:
+            return Six_directionAlgorithm.de_main_tow(OPTION,Plaintext,abs(check))
+        else :
+            return Six_directionAlgorithm.de_main(OPTION,Plaintext,abs(check))
+    
     @staticmethod
     def calculate_three(sequence):
         sum = 0
@@ -125,7 +172,7 @@ class Six_directionAlgorithm(EncryptAlgorithm):
         QQ = 0
         for i in range(len(first_key)):
             QQ += first_key[i]
-        if i % 2 == 0:
+        if QQ % 2 == 0:
             return Six_directionAlgorithm.main_tow(OPTION,Plaintext,abs(check))
         else :
             return Six_directionAlgorithm.main(OPTION,Plaintext,abs(check))
@@ -207,7 +254,10 @@ class Six_directionAlgorithm(EncryptAlgorithm):
         elif OPTION == 4:
             for i in range(check):
                 if Z_position - 1 == -1:
-                    Z_position = 3
+                    if (X_position == 3 and (Y_position == 2 or Y_position == 3)):
+                        Z_position = 2
+                    else:
+                        Z_position = 3
                 else:
                     Z_position = Z_position - 1
                 # print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", __MAP__[Z_position][X_position][Y_position], "check: ", check)

@@ -18,7 +18,11 @@ class standard_deviationAlgorithm(EncryptAlgorithm):
             for j in range((now_shiht_left),0,-1):
                 secret[j] = secret[j-1]
             secret[0]    = temp
-        return secret
+        
+        cout = ""
+        for i in range(len(secret)):
+            cout += secret[i]
+        return cout
 
     def encrypt(self, message: str) -> str:
         GG = standard_deviationAlgorithm.get_shift(message)
@@ -33,7 +37,10 @@ class standard_deviationAlgorithm(EncryptAlgorithm):
             for j in range(switch_temp):
                 message[j] = message[j+1]
             message[switch_temp] = __temp_text__
-        return message
+        cout = ""
+        for i in range(len(message)):
+           cout += message[i]
+        return cout
 
     @staticmethod
     def get_shift(Plaintext: str):
