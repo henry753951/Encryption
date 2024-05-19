@@ -172,7 +172,7 @@ class Six_directionAlgorithm(EncryptAlgorithm):
         QQ = 0
         for i in range(len(first_key)):
             QQ += first_key[i]
-        if i % 2 == 0:
+        if QQ % 2 == 0:
             return Six_directionAlgorithm.main_tow(OPTION,Plaintext,abs(check))
         else :
             return Six_directionAlgorithm.main(OPTION,Plaintext,abs(check))
