@@ -43,7 +43,7 @@ class StrangeShapeAlgorithm(EncryptAlgorithm):
             col=new_col
             myMap[row][col] = '&'
             #self.print_map(myMap)
-            for i in range(2):
+            for i in range(3):
                 choice = random.choice(road)
                 road.remove(choice)
                 #print(choice)
