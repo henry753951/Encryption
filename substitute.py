@@ -14,12 +14,12 @@ __mose__MAP = {
     "t" : [0,0,0,0,2], "u" : [0,0,1,1,2], "v" : [0,1,1,1,2], "w" : [0,0,1,2,2], "x" : [0,2,1,1,2],
     "y" : [0,2,1,2,2], "z" : [0,2,2,1,1],}
 
-seed = "1PIYAN"  # 固定種子
+seed = "267814"  # 固定種子
 length = 5  # 生成序列的長度
 
 first_key = [generate_sequence(seed, length)]
 second_key = [[],[],[],[],[]]
-secret_key = "PIYAN"
+secret_key = "67814"
 Plaintext = list(input("Enter the Plaintext: "))
 # print("Plaintext: ", first_key)
 # 1 [1, 2, 0, 1, 0]

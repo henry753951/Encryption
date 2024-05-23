@@ -6,10 +6,10 @@ from Algorithms.MazeAlgorithm import MazeEncryption
 from Algorithms.StrangeShapeAlgorithm import StrangeShapeAlgorithm
 from Algorithms.EZIC_Algorithm import EZICEncryptAlgorithm
 
-key = "PIYAN"
+# key = "PIYAN"
 from Algorithms.standard_deviationAlgorithm import standard_deviationAlgorithm
 from Algorithms.Six_directionAlgorithm import Six_directionAlgorithm
-key = "Kpoor"
+key = "67814"
 Algorithms: list[EncryptAlgorithm] = [
     standard_deviationAlgorithm(key),
     Six_directionAlgorithm(key),

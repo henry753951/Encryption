@@ -74,7 +74,7 @@ def how_to_go(Plaintext,first_key,second_key ) -> int:
     QQ = 0
     for i in range(len(first_key)):
         QQ += first_key[i]
-    if i % 2 == 0:
+    if QQ % 2 == 0:
         return main_tow(OPTION,Plaintext,abs(check))
     else :
         return main(OPTION,Plaintext,abs(check))
@@ -269,12 +269,12 @@ def main(OPTION,Plaintext,check) -> str:
                     X_position = 0
                 else:
                     X_position += 1
-                step = 0
+                step = 1
             elif step == 1:
                 if Y_position + 1 == len(MAP[X_position]):
-                    X_position = 0
+                    Y_position = 0
                 else:
-                    X_position += 1
+                    Y_position += 1
                 step = 0
             print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Plaintext: ", MAP[X_position][Y_position], "check: ", check)
     elif OPTION == 5:
@@ -332,7 +332,7 @@ def de_how_to_go(Plaintext,first_key,second_key ) -> int:
     QQ = 0
     for i in range(len(first_key)):
         QQ += first_key[i]
-    if i % 2 == 0:
+    if QQ % 2 == 0:
         return de_main_tow(OPTION,Plaintext,abs(check))
     else :
         return de_main(OPTION,Plaintext,abs(check))

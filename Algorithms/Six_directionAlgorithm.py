@@ -86,7 +86,7 @@ class Six_directionAlgorithm(EncryptAlgorithm):
     @staticmethod
     def de_how_to_go(Plaintext,first_key,second_key ) -> int:
         # print("first_key: ", first_key)
-        # print("second_key: ", second_key)
+        # print("show_to_goculate_three(second_key)
         first = Six_directionAlgorithm.calculate_three(first_key)
         second = Six_directionAlgorithm.calculate_three(second_key)
         check = 0
@@ -326,7 +326,6 @@ class Six_directionAlgorithm(EncryptAlgorithm):
             PATH = "X軸 下"
             # step = 0 下走
             # step = 1 右走
-
             for i in range(check):
                 if Y_position + 1 == len(MAP[X_position]):
                     Y_position = 0
@@ -371,12 +370,12 @@ class Six_directionAlgorithm(EncryptAlgorithm):
                         X_position = 0
                     else:
                         X_position += 1
-                    step = 0
+                    step = 1
                 elif step == 1:
                     if Y_position + 1 == len(MAP[X_position]):
-                        X_position = 0
+                        Y_position = 0
                     else:
-                        X_position += 1
+                        Y_position += 1
                     step = 0
                 # print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Plaintext: ", MAP[X_position][Y_position], "check: ", check)
         elif OPTION == 5:
@@ -400,8 +399,8 @@ class Six_directionAlgorithm(EncryptAlgorithm):
     
     @staticmethod
     def de_main_tow(OPTION,Plaintext,check):
-        X_position,Y_position,Z_position = Six_directionAlgorithm.find_position_three_dimision(__MAP__,Plaintext)
-        # print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", Plaintext, "check: ", check)
+        X_position,Y_position,Z_position = find_position_three_dimision(__MAP__,Plaintext)
+        print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", Plaintext, "check: ", check)
         # 前後左右上下
         if OPTION == 1:
             for i in range(check):
@@ -409,7 +408,7 @@ class Six_directionAlgorithm(EncryptAlgorithm):
                     X_position = 0
                 else:
                     X_position = X_position + 1
-                # print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", __MAP__[Z_position][X_position][Y_position], "check: ", check)
+                print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", __MAP__[Z_position][X_position][Y_position], "check: ", check)
         elif OPTION == 0:
             for i in range(check):
                 if X_position - 1 == -1:
@@ -419,7 +418,7 @@ class Six_directionAlgorithm(EncryptAlgorithm):
                         X_position = 3
                 else:
                     X_position = X_position - 1
-                # print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", __MAP__[Z_position][X_position][Y_position], "check: ", check)
+                print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", __MAP__[Z_position][X_position][Y_position], "check: ", check)
         elif OPTION == 3:
             for i in range(check):
                 if Y_position - 1 == -1:
@@ -429,31 +428,31 @@ class Six_directionAlgorithm(EncryptAlgorithm):
                         Y_position = 3
                 else:
                     Y_position = Y_position - 1
-                # print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", __MAP__[Z_position][X_position][Y_position], "check: ", check)
+                print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", __MAP__[Z_position][X_position][Y_position], "check: ", check)
         elif OPTION == 2:
             for i in range(check):
                 if Y_position + 1 == 4 or (Y_position + 1 == 2 and Z_position == 3 and X_position == 3):
                     Y_position = 0
                 else:
                     Y_position = Y_position + 1
-                # print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", __MAP__[Z_position][X_position][Y_position], "check: ", check)
-                #"OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", 
+                print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", __MAP__[Z_position][X_position][Y_position], "check: ", check)
+            #"OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", 
         elif OPTION == 5:
             for i in range(check):
                 if Z_position - 1 == -1:
                     Z_position = 3
                 else:
                     Z_position = Z_position - 1
-                # print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", __MAP__[Z_position][X_position][Y_position], "check: ", check)
+                print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", __MAP__[Z_position][X_position][Y_position], "check: ", check)
         elif OPTION == 4:
             for i in range(check):
                 if Z_position + 1 == 4 or (Z_position + 1 == 3 and X_position == 3 and (Y_position == 2 or Y_position == 3)):
                     Z_position = 0
                 else:
                     Z_position = Z_position + 1
-                # print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", __MAP__[Z_position][X_position][Y_position], "check: ", check)
+                print("OPTION: ", OPTION,"X_position: ", X_position, "Y_position: ", Y_position, "Z_position: ", Z_position, "Plaintext: ", __MAP__[Z_position][X_position][Y_position], "check: ", check)
         return __MAP__[Z_position][X_position][Y_position]
-    
+
     @staticmethod
     def de_main(OPTION,Plaintext,check) -> str:
         X_position, Y_position = Six_directionAlgorithm.find_position(MAP, Plaintext)
@@ -560,7 +559,7 @@ class Six_directionAlgorithm(EncryptAlgorithm):
                             Y_position = 7
                     else:
                         Y_position -= 1
-                    step = 0
+                    step = 1
                 elif step == 1:
                     if X_position - 1 == -1:
                         if Y_position == 6 or Y_position == 7:
